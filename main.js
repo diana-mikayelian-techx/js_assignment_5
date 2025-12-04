@@ -2,8 +2,8 @@
 
 const btnWithHeader = document.getElementById("btn-with-header");
 const btnWithoutHeader = document.getElementById("btn-without-header");
-const statusEl = document.getElementById("status");      
-const usersListEl = document.getElementById("users-list"); 
+const statusEl = document.getElementById("status");
+const usersListEl = document.getElementById("users-list");
 
 
 // 2. SMALL HELPER: delay(ms)
@@ -39,7 +39,7 @@ function showUsers(fullNames) {
 
   fullNames.forEach((name) => {
     const li = document.createElement("li");
-    li.textContent = name; 
+    li.textContent = name;
     usersListEl.appendChild(li);
   });
 }
@@ -52,43 +52,36 @@ async function fetchUsers(includeHeader) {
 
   console.log("Fetching users...");
 
-  const url = "https://reqres.in/api/users-?delay=1";
+  const url = "https://reqres.in/api/users";
 
   const options = {
     method: "GET",
-    headers: {}
+    headers: {
+      "Accept": "application/json",
+      "x-api-key": "reqres_c865a05b708d483bbc80199db10ba2a8"
+    }
   };
 
-
-  if (includeHeader) {
-    options.headers["x-api-key"] = "reqres-free-v1";
-  }
-
   try {
-    // 4.1. SEND REQUEST
-
     const response = await fetch(url, options);
+
+    console.log("HTTP status:", response.status);
 
     if (!response.ok) {
       throw new Error("HTTP error: " + response.status);
     }
 
     const data = await response.json();
+    console.log("Response data:", data);
 
     const users = Array.isArray(data.data) ? data.data : [];
 
     if (!users || users.length === 0) {
       showNoUsers();
-      return; 
+      return;
     }
 
-    // 4.2. EXTRA 1 SECOND DELAY
-    
-    await delay(1000); 
-
-    // 4.3. LOG DATA + MAP NAMES
-
-    console.log("Response data:", data);
+    await delay(1000);
 
     const fullNames = users.map((user) => {
       return user.first_name + " " + user.last_name;
@@ -99,14 +92,10 @@ async function fetchUsers(includeHeader) {
     showUsers(fullNames);
 
     console.log("Done.");
-
   } catch (error) {
-    // 4.4. ERROR / FAILURE CASE
     console.error("Fetch failed:", error);
     showNoUsers();
-
   } finally {
-    // 4.5. ALWAYS CLEAR LOADING
     clearLoading();
   }
 }
