@@ -5,7 +5,6 @@ const btnWithoutHeader = document.getElementById("btn-without-header");
 const statusEl = document.getElementById("status");
 const usersListEl = document.getElementById("users-list");
 
-
 // 2. SMALL HELPER: delay(ms)
 
 function delay(ms) {
@@ -13,7 +12,6 @@ function delay(ms) {
     setTimeout(resolve, ms);
   });
 }
-
 
 // 3. RENDERING HELPERS
 
@@ -44,27 +42,27 @@ function showUsers(fullNames) {
   });
 }
 
-
 // 4. MAIN ASYNC FUNCTION
 
 async function fetchUsers(includeHeader) {
   showLoading();
-
   console.log("Fetching users...");
 
-  const url = "https://reqres.in/api/users";
+  const url = "https://reqres.in/api/users?delay=1";
 
   const options = {
     method: "GET",
     headers: {
-      "Accept": "application/json",
-      "x-api-key": "reqres_c865a05b708d483bbc80199db10ba2a8"
-    }
+      Accept: "application/json",
+    },
   };
+
+  if (includeHeader) {
+    options.headers["x-api-key"] = "reqres_c865a05b708d483bbc80199db10ba2a8";
+  }
 
   try {
     const response = await fetch(url, options);
-
     console.log("HTTP status:", response.status);
 
     if (!response.ok) {
@@ -76,21 +74,17 @@ async function fetchUsers(includeHeader) {
 
     const users = Array.isArray(data.data) ? data.data : [];
 
-    if (!users || users.length === 0) {
+    if (!users.length) {
       showNoUsers();
       return;
     }
 
     await delay(1000);
 
-    const fullNames = users.map((user) => {
-      return user.first_name + " " + user.last_name;
-    });
-
+    const fullNames = users.map((u) => `${u.first_name} ${u.last_name}`);
     console.log("Full names:", fullNames);
 
     showUsers(fullNames);
-
     console.log("Done.");
   } catch (error) {
     console.error("Fetch failed:", error);
@@ -100,12 +94,6 @@ async function fetchUsers(includeHeader) {
   }
 }
 
-
-// 5. WIRE BUTTONS TO FUNCTION
-btnWithHeader.addEventListener("click", () => {
-  fetchUsers(true);
-});
-
-btnWithoutHeader.addEventListener("click", () => {
-  fetchUsers(false);
-});
+// 5. BUTTONS
+btnWithHeader.addEventListener("click", () => fetchUsers(true));
+btnWithoutHeader.addEventListener("click", () => fetchUsers(false));
